@@ -1,79 +1,36 @@
-import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { FontAwesome, Entypo, AntDesign, Ionicons } from '@expo/vector-icons';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AuthStackScreen from "./src/navigation/AuthStack";
+import AppDrawerScreen from "./src/navigation/AppDrawer";
+import { AuthContext, AuthProvider } from "./src/providers/AuthProvider";
+import * as firebase from "firebase/app";
+import firebaseConfig from "./src/firebase.config";
 
-
-import HomeScreen from './src/screens/HomeScreen';
-import NotificationScreen from './src/screens/NotificationScreen';
-import SignInScreen from './src/screens/SignInScreen';
-import SignUpScreen from './src/screens/SignUpScreen';
-import { AuthContext, AuthProvider } from './src/Providers/AuthProvider';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-// const HomeStack = createStackNavigator();
-const AuthStack = createStackNavigator();
-const HomeTab = createMaterialBottomTabNavigator();
-
-// const HomeStackScreen = () => {
-//   return (
-//     <HomeStack.Navigator initialRouteName="Home">
-//       <HomeStack.Screen name="Home" component={HomeScreen} />
-//     </HomeStack.Navigator>
-//   );
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCxIANnk4_ejlNe6uxiqWtg8rP54qo8RZI",
+//   authDomain: "facebook-auth-554b1.firebaseapp.com",
+//   databaseURL: "https://facebook-auth-554b1-default-rtdb.firebaseio.com",
+//   projectId: "facebook-auth-554b1",
+//   storageBucket: "facebook-auth-554b1.appspot.com",
+//   messagingSenderId: "313512590537",
+//   appId: "1:313512590537:web:0bc5de8f32392afa8da118"
 // };
 
-const HomeTabScreen = () => {
-  return(
-    <HomeTab.Navigator initialRouteName="Home">
-    <HomeTab.Screen name="Home" component={HomeScreen} 
-      options={{
-        tabBarLabel: 'Home',
-        tabBarIcon: ({ focused }) => 
-        focused ?(
-          <Entypo name="home" color="white" size={26} />
-        ) : (
-          <AntDesign name="home" color="white" size={22} />
-        ),
-      }}
-    />
-    <HomeTab.Screen name="Notification" component={NotificationScreen}
-      options={{
-        tabBarLabel: 'Home',
-        tabBarIcon: ({ focused }) => 
-        focused ?(
-          <Ionicons name="ios-notifications" size={26} color="white" />
-        ) : (
-          <Ionicons name="ios-notifications-outline"size={22} color="white" />
-        ),
-      }}
-    />
-  </HomeTab.Navigator>
-  )
-}
+  firebase.initializeApp(firebaseConfig);
 
-const AuthStackScreen = () => {
-  return (
-    <AuthStack.Navigator initialRouteName="SignIn">
-      <AuthStack.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }} />
-      <AuthStack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-    </AuthStack.Navigator>
-  );
-};
 
-const App = () => {
+function App() {
   return (
-    <SafeAreaProvider>
     <AuthProvider>
       <AuthContext.Consumer>
-        {(auth)=>(<NavigationContainer>
-          {auth.IsLoggedIn ? <HomeTabScreen /> :<AuthStackScreen />}
-        </NavigationContainer>)}
+        {(auth) => (
+          <NavigationContainer>
+            {auth.IsLoggedIn ? <AppDrawerScreen /> : <AuthStackScreen />}
+          </NavigationContainer>
+        )}
       </AuthContext.Consumer>
     </AuthProvider>
-    </SafeAreaProvider>
-  )
+  );
 }
 
 export default App;

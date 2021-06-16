@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native';
 import { Input, Button, Card } from 'react-native-elements';
 import { FontAwesome, Feather, AntDesign, Ionicons } from '@expo/vector-icons';
-import { storeDataJson } from '../functions/AsyncStorage';
+import *as firebase from 'firebase';
+
 
 const SignUpScreen = (props) => {
 
@@ -52,15 +53,36 @@ const SignUpScreen = (props) => {
                     title='Sign Up'
                     icon={<AntDesign name="user" size={24} color="white" />}
                     type='solid'
-                    onPress={function () {
-                        let CurrentUser = {
-                            name: Name,
-                            sid: SID,
-                            email: Email,
-                            password: Password
-                        };
-                        storeDataJson(Email, CurrentUser);
-                        props.navigation.navigate("SignIn")
+                    onPress={() => {
+                        if (Name && SID && Email && Password) {
+                            firebase
+                            .auth()
+                            .createUserWithEmailAndPassword(Email, Password)
+                                .then((userCredential) => {
+                                    userCredential.user.updateProfile({displayName: Name});
+                                    firebase
+                                    .database()
+                                    .ref()
+                                    .child("users/")
+                                    .child(userCredential.user.uid)
+                                    .set({
+                                        name: Name,
+                                        sid: SID,
+                                        email: Email,
+                                    }).then(()=>{
+                                        alert('account created successfully');
+                                        console.log(userCredential.user);
+                                        props.navigation.navigate("SignIn")
+                                    }).catch((error)=>{
+                                        alert(error)
+                                    });
+                                })
+                                .catch((error) => {
+                                    alert(error);
+                                });
+                        } else {
+                            alert('Fields cannot be empty!');
+                        }
                     }}
                 />
                 <Button
